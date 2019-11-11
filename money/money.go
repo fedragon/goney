@@ -1,6 +1,7 @@
 package goney
 
 import (
+	"errors"
 	"fmt"
 
 	"github.com/shopspring/decimal"
@@ -24,42 +25,68 @@ func (m Money) RoundedString() string {
 
 // Equal compares two Money instances for deep equality,
 // returning true if their amounts and currencies are themselves equal
-func (m Money) Equal(x Money) bool {
-	return m.Amount.Equal(x.Amount) && m.Currency == x.Currency
+func (m Money) Equal(x Money) (bool, error) {
+	cmp, err := m.Compare(x)
+
+	if err != nil {
+		return false, err
+	}
+
+	return cmp == 0, err
+}
+
+func (m Money) sameCurrency(x Money) error {
+	if m.Currency != x.Currency {
+		return errors.New("currencies do not match")
+	}
+
+	return nil
+}
+
+// Compare compares two Money instances and returns -1, 0, 1
+// if the first amount is respectively lower than, equal to,
+// or greater than the second one.
+// It returns an error if their currencies don't match.
+func (m Money) Compare(x Money) (int, error) {
+	if err := m.sameCurrency(x); err != nil {
+		return 0, err
+	}
+
+	return m.Amount.Cmp(x.Amount), nil
 }
 
 // Add returns a Money whose amount is the sum of the amounts in this
 // and the other Money instance, if their currencies match.
 // It returns an error if their currencies do not match
 func (m Money) Add(x Money) (Money, error) {
-	if m.Currency != x.Currency {
-		return Money{}, fmt.Errorf("different currencies: %v, %v", m.Currency, x.Currency)
+	if err := m.sameCurrency(x); err != nil {
+		return Money{}, err
 	}
 
 	return Money{m.Amount.Add(x.Amount), m.Currency}, nil
 }
 
-// Sub returns a Money whose amount is the difference of the amounts in
+// Subtract returns a Money whose amount is the difference of the amounts in
 // this and the other Money instance, if their currencies match.
 // It returns an error if their currencies do not match
-func (m Money) Sub(x Money) (Money, error) {
-	if m.Currency != x.Currency {
-		return Money{}, fmt.Errorf("different currencies: %v, %v", m.Currency, x.Currency)
+func (m Money) Subtract(x Money) (Money, error) {
+	if err := m.sameCurrency(x); err != nil {
+		return Money{}, err
 	}
 
 	return Money{m.Amount.Sub(x.Amount), m.Currency}, nil
 }
 
-// Mul returns a Money whose amount is the multiplication of the amount
-// in this instance by the provided multiplier
-func (m Money) Mul(x decimal.Decimal) Money {
+// Multiply returns a Money whose amount is the multiplication of
+// the amount in this instance by the provided multiplier
+func (m Money) Multiply(x decimal.Decimal) Money {
 	return Money{m.Amount.Mul(x), m.Currency}
 }
 
-// Div returns a Money whose amount is the division of the amount
+// Divide returns a Money whose amount is the division of the amount
 // in this instance by the provided dividend.
-// It returns an error if the dividend is zero
-func (m Money) Div(x decimal.Decimal) (Money, error) {
+// It returns an error if the dividend is zero.
+func (m Money) Divide(x decimal.Decimal) (Money, error) {
 	if x.IsZero() {
 		return Money{}, fmt.Errorf("cannot divide by zero")
 	}

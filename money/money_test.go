@@ -43,14 +43,15 @@ func TestMoney_Add(t *testing.T) {
 				t.Errorf("Money.Add() error = %v, wantErr %v", err, tt.wantErr)
 				return
 			}
-			if !got.Equal(tt.want) {
+			eq, err := got.Equal(tt.want)
+			if err != nil || !eq {
 				t.Errorf("Money.Add() = %v, want %v", got, tt.want)
 			}
 		})
 	}
 }
 
-func TestMoney_Sub(t *testing.T) {
+func TestMoney_Subtract(t *testing.T) {
 	type args struct {
 		x Money
 	}
@@ -61,15 +62,6 @@ func TestMoney_Sub(t *testing.T) {
 		want    Money
 		wantErr bool
 	}{
-		{"returns a new instance whose amount is the difference between the two amounts, when currencies match",
-			Money{
-				decimal.NewFromFloat(5.67123),
-				EUR,
-			},
-			args{Money{decimal.NewFromFloat(1.2398), EUR}},
-			Money{decimal.NewFromFloat(4.43143), EUR},
-			false,
-		},
 		{"returns an error, if currencies do not match",
 			Money{
 				decimal.NewFromFloat(1),
@@ -79,22 +71,32 @@ func TestMoney_Sub(t *testing.T) {
 			Money{},
 			true,
 		},
+		{"returns a new instance whose amount is the difference between the two amounts, otherwise",
+			Money{
+				decimal.NewFromFloat(5.67123),
+				EUR,
+			},
+			args{Money{decimal.NewFromFloat(1.2398), EUR}},
+			Money{decimal.NewFromFloat(4.43143), EUR},
+			false,
+		},
 	}
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
-			got, err := tt.input.Sub(tt.args.x)
+			got, err := tt.input.Subtract(tt.args.x)
 			if (err != nil) != tt.wantErr {
-				t.Errorf("Money.Sub() error = %v, wantErr %v", err, tt.wantErr)
+				t.Errorf("Money.Subtract() error = %v, wantErr %v", err, tt.wantErr)
 				return
 			}
-			if !got.Equal(tt.want) {
-				t.Errorf("Money.Sub() = %v, want %v", got, tt.want)
+			eq, err := got.Equal(tt.want)
+			if err != nil || !eq {
+				t.Errorf("Money.Subtract() = %v, want %v", got, tt.want)
 			}
 		})
 	}
 }
 
-func TestMoney_Div(t *testing.T) {
+func TestMoney_Divide(t *testing.T) {
 	tests := []struct {
 		name    string
 		input   Money
@@ -123,19 +125,20 @@ func TestMoney_Div(t *testing.T) {
 	}
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
-			got, err := tt.input.Div(tt.args)
+			got, err := tt.input.Divide(tt.args)
 			if (err != nil) != tt.wantErr {
-				t.Errorf("Money.Div() error = %v, wantErr %v", err, tt.wantErr)
+				t.Errorf("Money.Divide() error = %v, wantErr %v", err, tt.wantErr)
 				return
 			}
-			if !got.Equal(tt.want) {
-				t.Errorf("Money.Div() = %v, want %v", got, tt.want)
+			eq, err := got.Equal(tt.want)
+			if err != nil || !eq {
+				t.Errorf("Money.Divide() = %v, want %v", got, tt.want)
 			}
 		})
 	}
 }
 
-func TestMoney_Mul(t *testing.T) {
+func TestMoney_Multiply(t *testing.T) {
 	tests := []struct {
 		name  string
 		input Money
@@ -153,9 +156,92 @@ func TestMoney_Mul(t *testing.T) {
 	}
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
-			got := tt.input.Mul(tt.args)
-			if !got.Equal(tt.want) {
-				t.Errorf("Money.Mul() = %v, want %v", got, tt.want)
+			got := tt.input.Multiply(tt.args)
+			eq, err := got.Equal(tt.want)
+			if err != nil || !eq {
+				t.Errorf("Money.Multiply() = %v, want %v", got, tt.want)
+			}
+		})
+	}
+}
+
+func TestMoney_Compare(t *testing.T) {
+	type args struct {
+		x Money
+	}
+	tests := []struct {
+		name    string
+		input   Money
+		args    args
+		want    int
+		wantErr bool
+	}{
+		{"returns an error if currencies don't match",
+			Money{
+				decimal.NewFromFloat(1.23),
+				EUR,
+			},
+			args{
+				Money{
+					decimal.NewFromFloat(1.23),
+					JPY,
+				},
+			},
+			0,
+			true,
+		},
+		{"returns -1 when currencies match and first amount is lower than the second one",
+			Money{
+				decimal.NewFromFloat(1.23),
+				EUR,
+			},
+			args{
+				Money{
+					decimal.NewFromFloat(3.4),
+					EUR,
+				},
+			},
+			-1,
+			false,
+		},
+		{"returns 0 when currencies match and amounts are the same",
+			Money{
+				decimal.NewFromFloat(1.23),
+				EUR,
+			},
+			args{
+				Money{
+					decimal.NewFromFloat(1.23),
+					EUR,
+				},
+			},
+			0,
+			false,
+		},
+		{"returns 1 when currencies match and first amount is greater than the second one",
+			Money{
+				decimal.NewFromFloat(3.4),
+				EUR,
+			},
+			args{
+				Money{
+					decimal.NewFromFloat(1.23),
+					EUR,
+				},
+			},
+			1,
+			false,
+		},
+	}
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			got, err := tt.input.Compare(tt.args.x)
+			if (err != nil) != tt.wantErr {
+				t.Errorf("Money.Compare() error = %v, wantErr %v", err, tt.wantErr)
+				return
+			}
+			if got != tt.want {
+				t.Errorf("Money.Compare() = %v, want %v", got, tt.want)
 			}
 		})
 	}
@@ -166,10 +252,11 @@ func TestMoney_Equal(t *testing.T) {
 		x Money
 	}
 	tests := []struct {
-		name  string
-		input Money
-		args  args
-		want  bool
+		name    string
+		input   Money
+		args    args
+		want    bool
+		wantErr bool
 	}{
 		{"returns true when instances have the same currency and amount",
 			Money{
@@ -183,6 +270,7 @@ func TestMoney_Equal(t *testing.T) {
 				},
 			},
 			true,
+			false,
 		},
 		{"returns false when instances have the same currency but different amounts",
 			Money{
@@ -196,8 +284,9 @@ func TestMoney_Equal(t *testing.T) {
 				},
 			},
 			false,
+			false,
 		},
-		{"returns false when instances have the same amount but different currencies",
+		{"returns an error when instances have different currencies",
 			Money{
 				decimal.NewFromFloat(1.23),
 				EUR,
@@ -209,11 +298,17 @@ func TestMoney_Equal(t *testing.T) {
 				},
 			},
 			false,
+			true,
 		},
 	}
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
-			if got := tt.input.Equal(tt.args.x); got != tt.want {
+			got, err := tt.input.Equal(tt.args.x)
+			if (err != nil) != tt.wantErr {
+				t.Errorf("Money.Equal() error = %v, wantErr %v", err, tt.wantErr)
+				return
+			}
+			if got != tt.want {
 				t.Errorf("Money.Equal() = %v, want %v", got, tt.want)
 			}
 		})
@@ -244,7 +339,7 @@ func TestMoney_RoundedString(t *testing.T) {
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
 			if got := tt.input.RoundedString(); got != tt.want {
-				t.Errorf("Money.FormattedString() = %v, want %v", got, tt.want)
+				t.Errorf("Money.RoundedString() = %v, want %v", got, tt.want)
 			}
 		})
 	}
