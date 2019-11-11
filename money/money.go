@@ -22,9 +22,9 @@ func (m Money) RoundedString() string {
 	return fmt.Sprintf("%v %v", m.Currency, m.Amount.RoundBank(m.Currency.Precision))
 }
 
-// Equals compares two Money instances for deep equality,
+// Equal compares two Money instances for deep equality,
 // returning true if their amounts and currencies are themselves equal
-func (m Money) Equals(x Money) bool {
+func (m Money) Equal(x Money) bool {
 	return m.Amount.Equal(x.Amount) && m.Currency == x.Currency
 }
 

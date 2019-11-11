@@ -43,7 +43,7 @@ func TestMoney_Add(t *testing.T) {
 				t.Errorf("Money.Add() error = %v, wantErr %v", err, tt.wantErr)
 				return
 			}
-			if !got.Equals(tt.want) {
+			if !got.Equal(tt.want) {
 				t.Errorf("Money.Add() = %v, want %v", got, tt.want)
 			}
 		})
@@ -87,7 +87,7 @@ func TestMoney_Sub(t *testing.T) {
 				t.Errorf("Money.Sub() error = %v, wantErr %v", err, tt.wantErr)
 				return
 			}
-			if !got.Equals(tt.want) {
+			if !got.Equal(tt.want) {
 				t.Errorf("Money.Sub() = %v, want %v", got, tt.want)
 			}
 		})
@@ -128,7 +128,7 @@ func TestMoney_Div(t *testing.T) {
 				t.Errorf("Money.Div() error = %v, wantErr %v", err, tt.wantErr)
 				return
 			}
-			if !got.Equals(tt.want) {
+			if !got.Equal(tt.want) {
 				t.Errorf("Money.Div() = %v, want %v", got, tt.want)
 			}
 		})
@@ -154,14 +154,14 @@ func TestMoney_Mul(t *testing.T) {
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
 			got := tt.input.Mul(tt.args)
-			if !got.Equals(tt.want) {
+			if !got.Equal(tt.want) {
 				t.Errorf("Money.Mul() = %v, want %v", got, tt.want)
 			}
 		})
 	}
 }
 
-func TestMoney_Equals(t *testing.T) {
+func TestMoney_Equal(t *testing.T) {
 	type args struct {
 		x Money
 	}
@@ -213,8 +213,8 @@ func TestMoney_Equals(t *testing.T) {
 	}
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
-			if got := tt.input.Equals(tt.args.x); got != tt.want {
-				t.Errorf("Money.Equals() = %v, want %v", got, tt.want)
+			if got := tt.input.Equal(tt.args.x); got != tt.want {
+				t.Errorf("Money.Equal() = %v, want %v", got, tt.want)
 			}
 		})
 	}
