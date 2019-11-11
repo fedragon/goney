@@ -315,7 +315,7 @@ func TestMoney_Equal(t *testing.T) {
 	}
 }
 
-func TestMoney_RoundedString(t *testing.T) {
+func TestMoney_FormattedString(t *testing.T) {
 	tests := []struct {
 		name  string
 		input Money
@@ -338,8 +338,8 @@ func TestMoney_RoundedString(t *testing.T) {
 	}
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
-			if got := tt.input.RoundedString(); got != tt.want {
-				t.Errorf("Money.RoundedString() = %v, want %v", got, tt.want)
+			if got := tt.input.FormattedString(); got != tt.want {
+				t.Errorf("Money.FormattedString() = %v, want %v", got, tt.want)
 			}
 		})
 	}

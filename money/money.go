@@ -17,9 +17,9 @@ func (m Money) String() string {
 	return fmt.Sprintf("%v %v", m.Currency, m.Amount)
 }
 
-// RoundedString returns a string representation of this
+// FormattedString returns a string representation of this
 // instance, rounding its amount according to the currency's own precision
-func (m Money) RoundedString() string {
+func (m Money) FormattedString() string {
 	return fmt.Sprintf("%v %v", m.Currency, m.Amount.RoundBank(m.Currency.Precision))
 }
 
