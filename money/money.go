@@ -3,6 +3,7 @@ package goney
 import (
 	"errors"
 	"fmt"
+	"strings"
 
 	"github.com/shopspring/decimal"
 )
@@ -23,6 +24,29 @@ func FromFloat(amount float64, currency Currency) Money {
 // amount and currency
 func FromInt(amount int64, currency Currency) Money {
 	return Money{decimal.New(amount, 10), currency}
+}
+
+// FromString returns a Money instance representing the provided
+// amount and currency. It assumes that the input string will
+// have the form: <currency code> <amount>
+// e.g. EUR 1.234
+func FromString(value string) (Money, error) {
+	if parts := strings.Split(value, " "); len(parts) == 2 {
+		amount, err := decimal.NewFromString(parts[1])
+
+		if err != nil {
+			return Money{}, fmt.Errorf("invalid amount %v", amount)
+		}
+		currency := Find(parts[0])
+
+		if currency == XXX {
+			return Money{}, fmt.Errorf("unknown currency %v", parts[0])
+		}
+
+		return Money{amount, currency}, nil
+	}
+
+	return Money{}, errors.New("unable to parse string into money. expected format: currency-code amount")
 }
 
 func (m Money) String() string {

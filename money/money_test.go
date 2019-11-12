@@ -55,6 +55,42 @@ func TestFromInt(t *testing.T) {
 	}
 }
 
+func TestFromString(t *testing.T) {
+	type args struct {
+		value string
+	}
+	tests := []struct {
+		name    string
+		args    args
+		want    Money
+		wantErr bool
+	}{
+		{"returns a Money instance with provided amount and currency",
+			args{"EUR 123.34"},
+			Money{decimal.NewFromFloat(123.34), EUR},
+			false,
+		},
+		{"returns an error, if currency is unknown",
+			args{"OMG 123.34"},
+			Money{},
+			true,
+		},
+	}
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			got, err := FromString(tt.args.value)
+
+			if (err != nil) != tt.wantErr {
+				t.Errorf("FromString() error = %v, wantErr %v", err, tt.wantErr)
+			}
+
+			if !reflect.DeepEqual(got, tt.want) {
+				t.Errorf("FromString() = %v, want %v", got, tt.want)
+			}
+		})
+	}
+}
+
 func TestMoney_Add(t *testing.T) {
 	type args struct {
 		x Money
