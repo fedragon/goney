@@ -24,7 +24,7 @@ func TestFromFloat(t *testing.T) {
 	}
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
-			if got := FromFloat(tt.args.amount, tt.args.currency); !reflect.DeepEqual(got, tt.want) {
+			if got := FromFloat(tt.args.currency, tt.args.amount); !reflect.DeepEqual(got, tt.want) {
 				t.Errorf("FromFloat() = %v, want %v", got, tt.want)
 			}
 		})
@@ -48,7 +48,7 @@ func TestFromInt(t *testing.T) {
 	}
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
-			if got := FromInt(tt.args.amount, tt.args.currency); !reflect.DeepEqual(got, tt.want) {
+			if got := FromInt(tt.args.currency, tt.args.amount); !reflect.DeepEqual(got, tt.want) {
 				t.Errorf("FromInt() = %v, want %v", got, tt.want)
 			}
 		})

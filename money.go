@@ -16,13 +16,13 @@ type Money struct {
 
 // FromFloat returns a Money instance representing the provided
 // amount and currency
-func FromFloat(amount float64, currency Currency) Money {
+func FromFloat(currency Currency, amount float64) Money {
 	return Money{decimal.NewFromFloat(amount), currency}
 }
 
 // FromInt returns a Money instance representing the provided
 // amount and currency
-func FromInt(amount int64, currency Currency) Money {
+func FromInt(currency Currency, amount int64) Money {
 	return Money{decimal.New(amount, 10), currency}
 }
 
