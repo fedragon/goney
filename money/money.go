@@ -13,6 +13,18 @@ type Money struct {
 	Currency Currency
 }
 
+// FromFloat returns a Money instance representing the provided
+// amount and currency
+func FromFloat(amount float64, currency Currency) Money {
+	return Money{decimal.NewFromFloat(amount), currency}
+}
+
+// FromInt returns a Money instance representing the provided
+// amount and currency
+func FromInt(amount int64, currency Currency) Money {
+	return Money{decimal.New(amount, 10), currency}
+}
+
 func (m Money) String() string {
 	return fmt.Sprintf("%v %v", m.Currency, m.Amount)
 }

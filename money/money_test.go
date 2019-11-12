@@ -1,10 +1,59 @@
 package goney
 
 import (
+	"reflect"
 	"testing"
 
 	"github.com/shopspring/decimal"
 )
+
+func TestFromFloat(t *testing.T) {
+	type args struct {
+		amount   float64
+		currency Currency
+	}
+	tests := []struct {
+		name string
+		args args
+		want Money
+	}{
+		{"returns a Money instance with provided amount and currency",
+			args{1.23, EUR},
+			Money{decimal.NewFromFloat(1.23), EUR},
+		},
+	}
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			if got := FromFloat(tt.args.amount, tt.args.currency); !reflect.DeepEqual(got, tt.want) {
+				t.Errorf("FromFloat() = %v, want %v", got, tt.want)
+			}
+		})
+	}
+}
+
+func TestFromInt(t *testing.T) {
+	type args struct {
+		amount   int64
+		currency Currency
+	}
+	tests := []struct {
+		name string
+		args args
+		want Money
+	}{
+		{"returns a Money instance with provided amount and currency",
+			args{100, EUR},
+			Money{decimal.New(100, 10), EUR},
+		},
+	}
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			if got := FromInt(tt.args.amount, tt.args.currency); !reflect.DeepEqual(got, tt.want) {
+				t.Errorf("FromInt() = %v, want %v", got, tt.want)
+			}
+		})
+	}
+}
 
 func TestMoney_Add(t *testing.T) {
 	type args struct {
